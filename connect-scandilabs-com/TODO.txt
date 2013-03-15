@@ -1,0 +1,8 @@
+TODO:
+
+Mobile font sizes: http://webdesignerwall.com/tutorials/5-useful-css-tricks-for-responsive-design
+
+- companies crud
+- spouse + kid names on person
+- ability to associate a note with an object (person, company, maybe oppty)
+- oppty

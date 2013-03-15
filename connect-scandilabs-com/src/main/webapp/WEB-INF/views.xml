@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+ "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+
+<!-- This is file is used by org.springframework.web.servlet.view.XmlViewResolver to 
+resolve views that need java classes to render (for instance, in order to send JSON 
+back to the browser) -->
+
+<beans>
+    
+    <bean name="json-string" class="org.catamarancode.spring.mvc.StringView">
+        <property name="contentType">
+            <value>
+                application/json
+            </value>
+        </property>
+        <property name="enableDebugLog">
+            <value>
+                true
+            </value>
+        </property>
+    </bean>
+    
+    <bean name="csv-string" class="org.catamarancode.spring.mvc.StringView">
+        <property name="contentType">
+            <value>
+                text/csv
+            </value>
+        </property>
+    </bean>
+    
+</beans>
