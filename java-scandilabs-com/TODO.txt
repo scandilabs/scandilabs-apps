@@ -1,4 +1,0 @@
-- refactor: clean up topic extraction from list of FAQs
-
-- attachments
-- include comments in search?
