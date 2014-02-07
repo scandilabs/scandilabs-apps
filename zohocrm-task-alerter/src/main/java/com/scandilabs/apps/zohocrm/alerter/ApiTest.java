@@ -1,10 +1,21 @@
 package com.scandilabs.apps.zohocrm.alerter;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 
 public class ApiTest {
 
@@ -23,24 +34,51 @@ public class ApiTest {
            String authtoken = "8cdb044dcad100b204412ce56de4d7b0";
            String targetURL = "https://crm.zoho.com/crm/private/json/Contacts/getRecords"; 
             String paramname = "content";
-            PostMethod post = new PostMethod(targetURL);
-            post.setParameter("authtoken",authtoken);
-            post.setParameter("scope","crmapi");
-            post.setParameter("fromIndex","1");
-            post.setParameter("toIndex","200");
-            HttpClient httpclient = new HttpClient();
+            DefaultHttpClient httpClient = new DefaultHttpClient();
+            HttpPost post = new HttpPost(targetURL);
+            //PostMethod post = new PostMethod(targetURL);
+            List<NameValuePair> nvps = new ArrayList<NameValuePair>();
+            nvps.add(new BasicNameValuePair("authtoken",authtoken));
+            nvps.add(new BasicNameValuePair("scope","crmapi"));
+            nvps.add(new BasicNameValuePair("fromIndex","1"));
+            nvps.add(new BasicNameValuePair("toIndex","200"));
+            post.setEntity(new UrlEncodedFormEntity(nvps));
 
             /*-------------------------------------- Execute the http request--------------------------------*/
             try 
             {
                 long t1 = System.currentTimeMillis();
-                int result = httpclient.executeMethod(post);
-                System.out.println("HTTP Response status code: " + result);
+                HttpResponse httpResponse = httpClient.execute(post);
+                System.out.println("HTTP Response status code: " + httpResponse.getStatusLine().getStatusCode());
                 System.out.println(">> Time taken " + (System.currentTimeMillis() - t1));
 
-                JSONObject json = JSONObject.fromObject(post.getResponseBodyAsString());
+                HttpEntity entity2 = httpResponse.getEntity();
+                
+                // Copy raw html into a string
+                String htmlContent;
+                try {
+                	
+                	ByteArrayOutputStream out = new ByteArrayOutputStream();
+            		byte[] buffer = new byte[1024];
+                    int len = entity2.getContent().read(buffer);
+                    while (len != -1) {
+                        out.write(buffer, 0, len);
+                        len = entity2.getContent().read(buffer);
+                    }
+                    
+        			htmlContent = out.toString();
+        			EntityUtils.consume(entity2);
+        		} catch (IllegalStateException e) {
+        			throw new RuntimeException(e);
+        			//logger.error("IllegalStateException while consuming entity");
+        		} catch (IOException e) {
+        			throw new RuntimeException(e);
+        			//logger.error("IOException while consuming entity");
+        		}
+                
+                JSONObject json = JSONObject.fromObject(htmlContent);
                 System.out.println(
-                		"json>" + post.getResponseBodyAsString());
+                		"json>" + htmlContent);
                 
                 JSONArray rows = json.getJSONObject("response").getJSONObject("result").getJSONObject("Contacts").getJSONArray("row");
                 
