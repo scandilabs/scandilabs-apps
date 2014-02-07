@@ -26,6 +26,8 @@ public class ApiTest {
             PostMethod post = new PostMethod(targetURL);
             post.setParameter("authtoken",authtoken);
             post.setParameter("scope","crmapi");
+            post.setParameter("fromIndex","1");
+            post.setParameter("toIndex","200");
             HttpClient httpclient = new HttpClient();
 
             /*-------------------------------------- Execute the http request--------------------------------*/
@@ -45,6 +47,14 @@ public class ApiTest {
                 for (int i = 0; i < rows.size(); i++) {
                 	String rowNumber = (String) rows.getJSONObject(i).get("no");
                 	JSONArray fields = rows.getJSONObject(i).getJSONArray("FL");
+                	String nextCallDateStr = getField(fields, "Next Call Date");
+                	if (nextCallDateStr == null) {
+                		System.out.println("No call date in row " + rowNumber);
+                	} else {
+                		System.out.println("Call date: " + nextCallDateStr);
+                	}
+                	
+                	
                 	for (int j = 0; j < fields.size(); j++) {
                 		String fieldName = fields.getJSONObject(j).getString("val");
                 		String fieldValue = fields.getJSONObject(j).getString("content");
@@ -73,6 +83,16 @@ public class ApiTest {
             e.printStackTrace();
         }    
 
+	}
+	
+	private static String getField(JSONArray fields, String fieldName) {
+		for (int j = 0; j < fields.size(); j++) {
+    		String name = fields.getJSONObject(j).getString("val");
+    		if (fieldName.equals(name)) {
+    			return fields.getJSONObject(j).getString("content");
+    		}
+    	}
+		return null;
 	}
 
 }
