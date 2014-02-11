@@ -22,6 +22,24 @@
       <version>2.3</version>
 	  <classifier>jdk15</classifier>
     </dependency>	
+
+    <!-- TODO update depencency in catamaran.jar -->
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>servlet-api</artifactId>
+        <version>2.4</version>  
+        <!-- jar comes pre-installed in tomcat/lib -->
+        <scope>provided</scope>                  
+    </dependency>
+
+    <dependency>
+      <groupId>org.catamarancode</groupId>
+      <artifactId>catamaran-tomc</artifactId>
+      <version>1.1</version>
+      <!-- jar should be manually copied to tomcat/lib -->
+      <scope>provided</scope>
+    </dependency>    
+    
     <dependency>
         <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>

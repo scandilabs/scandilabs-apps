@@ -17,6 +17,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import com.scandilabs.apps.zohocrm.service.ZohoCrmApiService;
+
 public class ApiTest {
 
 	public ApiTest() {
@@ -28,6 +30,7 @@ public class ApiTest {
 	 */
 	public static void main(String[] args) {
 		
+		ZohoCrmApiService service = new ZohoCrmApiService();
 		
         try    
         {      
@@ -36,12 +39,11 @@ public class ApiTest {
             String paramname = "content";
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpPost post = new HttpPost(targetURL);
-            //PostMethod post = new PostMethod(targetURL);
             List<NameValuePair> nvps = new ArrayList<NameValuePair>();
             nvps.add(new BasicNameValuePair("authtoken",authtoken));
             nvps.add(new BasicNameValuePair("scope","crmapi"));
             nvps.add(new BasicNameValuePair("fromIndex","1"));
-            nvps.add(new BasicNameValuePair("toIndex","200"));
+            nvps.add(new BasicNameValuePair("toIndex","10"));
             post.setEntity(new UrlEncodedFormEntity(nvps));
 
             /*-------------------------------------- Execute the http request--------------------------------*/
