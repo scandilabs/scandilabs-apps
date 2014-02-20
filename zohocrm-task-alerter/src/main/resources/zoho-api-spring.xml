@@ -14,4 +14,37 @@
     <property name="zohoCrmApiService" ref="zohoCrmApiService" />
   </bean>
   
+    <bean id="springMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host">
+          <value>smtp.gmail.com</value>
+        </property>
+        <property name="port">
+          <value>465</value>
+        </property> 
+        <property name="protocol">
+          <value>smtps</value>
+        </property> 
+        <property name="username">
+          <value>domainadmin@scandilabs.com</value>
+        </property> 
+        <property name="password">
+          <value>sc@ndi123</value>
+        </property> 
+        <property name="javaMailProperties">
+          <props>
+            <prop key="mail.smtps.auth">true</prop>
+            <prop key="mail.smtps.starttls.enable">true</prop>
+            <prop key="mail.smtps.debug">true</prop>
+          </props>
+        </property> 
+    </bean>
+        
+      <!-- A service that wraps the Spring/Java mail sender to allow for sending html-formatted emails with minimal coding -->
+      <bean id="htmlMailSender" class="com.scandilabs.catamaran.mail.send.SimpleHtmlMailSender">
+        <constructor-arg ref="springMailSender" />
+        <property name="defaultFrom" value="domainadmin@scandilabs.com"/>
+        <property name="defaultTo" value="mkvalsvik@scandilabs.com"/>
+        <property name="testMode" value="false"/>
+      </bean>      
+  
 </beans>               

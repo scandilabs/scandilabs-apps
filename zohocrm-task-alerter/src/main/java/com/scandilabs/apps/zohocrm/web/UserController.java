@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import com.scandilabs.apps.zohocrm.service.PageMessageContext;
+import com.scandilabs.apps.zohocrm.service.Row;
 import com.scandilabs.apps.zohocrm.service.UserContext;
 import com.scandilabs.apps.zohocrm.service.ZohoCrmApiService;
 
@@ -37,14 +38,33 @@ public class UserController {
 	@RequestMapping(value = "/contacts/view/{contactKey}", method = RequestMethod.GET)	
 	public String contactView(Map<String,Object> model, @PathVariable("contactKey") String contactKey) {
 
-		pageMessageContext.addPendingToModel(model);
 		if (!userContext.isLoggedIn()) {
     		return "redirect:/signin";
     	}
-		userContext.prepareModel(model);
+
+		Row row = this.zohoCrmApiService.loadContactFields(contactKey);
+		for (String fieldName : row.getNoSpaceFieldMap().keySet()) {
+			model.put(fieldName, row.getNoSpaceFieldMap().get(fieldName));
+		}
 		
+		pageMessageContext.addPendingToModel(model);
+		userContext.prepareModel(model);		
         return "contact-view";		
 	}
+	
+	@RequestMapping(value = "/contacts/postpone/{contactKey}", method = RequestMethod.GET)	
+	public String contactPostpone(Map<String,Object> model, @PathVariable("contactKey") String contactKey) {
+
+		if (!userContext.isLoggedIn()) {
+    		return "redirect:/signin";
+    	}
+
+		this.zohoCrmApiService.postponeContactNextCallDate(contactKey);
+		
+		pageMessageContext.addPendingToModel(model);
+		userContext.prepareModel(model);		
+        return "redirect:/contacts/view/" + contactKey;		
+	}	
 	
 	@RequestMapping(value = "/contacts/list", method = RequestMethod.GET)	
 	public String contactsList(Map<String,Object> model) {
