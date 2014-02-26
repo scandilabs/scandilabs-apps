@@ -14,17 +14,17 @@ import org.apache.commons.lang.StringUtils;
  */
 public class Row {
 
-	private Map<String, String> fieldMap = new HashMap<String, String>();
+	private Map<String, Object> fieldMap = new HashMap<String, Object>();
 	private int rowNumber;
 	
-	public Map<String, String> getFieldMap() {
+	public Map<String, Object> getFieldMap() {
 		return fieldMap;
 	}
-	public void setFieldMap(Map<String, String> fieldMap) {
+	public void setFieldMap(Map<String, Object> fieldMap) {
 		this.fieldMap = fieldMap;
 	}
 	
-	public void addField(String key, String value) {
+	public void addField(String key, Object value) {
 		this.fieldMap.put(key, value);
 	}
 	
@@ -39,10 +39,10 @@ public class Row {
 	 * Converts field names like "First Name" to "First_Name" so that they work with Freemarker etc
 	 * @return
 	 */
-	public Map<String, String> getNoSpaceFieldMap() {
-		Map<String, String> noSpaceMap = new HashMap<String, String>();
+	public Map<String, Object> getNoSpaceFieldMap() {
+		Map<String, Object> noSpaceMap = new HashMap<String, Object>();
 		for (String key : fieldMap.keySet()) {
-			String value = fieldMap.get(key);
+			Object value = fieldMap.get(key);
 			String nameNoSpaces = StringUtils.replace(key, " ", "_");
 			noSpaceMap.put(nameNoSpaces, value);
 		}
@@ -51,15 +51,20 @@ public class Row {
 	
 	public String toXML() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<row no\"");
+		sb.append("<row no=\"");
 		sb.append(this.rowNumber);
 		sb.append("\">");
 		for (String key : fieldMap.keySet()) {
-			String value = fieldMap.get(key);
+			Object value = fieldMap.get(key);
 			sb.append("<FL val=\"");
 			sb.append(key);
 			sb.append("\">");
-			sb.append(value);
+			if (value != null) {
+				sb.append(value.toString());	
+			} else {
+				sb.append("null");
+			}
+			
 			sb.append("</FL>");
 		}
 		sb.append("</row>");

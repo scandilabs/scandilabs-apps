@@ -1,4 +1,4 @@
-package com.scandilabs.apps.zohocrm.service;
+package com.scandilabs.apps.zohocrm.entity;
 
 import java.util.Date;
 
@@ -22,7 +22,9 @@ public class User implements Timestamped {
     
     private static Logger logger = LoggerFactory.getLogger(User.class);
 
+    private String zohoAuthToken;
     private String key;
+    private String apiAuthToken;
     private Name name;
     private String email;
     private String encodedPassword;    
@@ -144,5 +146,25 @@ public class User implements Timestamped {
 
 	public void setShortId(String shortId) {
 		this.shortId = shortId;
+	}
+
+
+	public String getZohoAuthToken() {
+		return zohoAuthToken;
+	}
+
+
+	public void setZohoAuthToken(String zohoAuthToken) {
+		this.zohoAuthToken = zohoAuthToken;
+	}
+
+
+	public String getApiAuthToken() {
+		return apiAuthToken;
+	}
+
+
+	public void setApiAuthToken(String apiAuthToken) {
+		this.apiAuthToken = apiAuthToken;
 	}    
 }

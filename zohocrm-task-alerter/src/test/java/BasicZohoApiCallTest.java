@@ -1,8 +1,6 @@
 
 import java.util.List;
-import java.util.Map;
 
-import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
 import org.junit.Assert;
@@ -15,7 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.scandilabs.apps.zohocrm.entity.User;
+import com.scandilabs.apps.zohocrm.entity.support.Repository;
+import com.scandilabs.apps.zohocrm.entity.support.UserIdConstants;
 import com.scandilabs.apps.zohocrm.service.DailyEmailDaemon;
+import com.scandilabs.apps.zohocrm.service.RecordType;
 import com.scandilabs.apps.zohocrm.service.Row;
 import com.scandilabs.apps.zohocrm.service.ZohoCrmApiService;
 
@@ -31,12 +33,20 @@ public class BasicZohoApiCallTest {
 	
 	@Autowired
 	private DailyEmailDaemon dailyEmailDaemon;	
+	
+	@Autowired
+	Repository repository;
+	
+	private User user;
 
 	@Before
 	public void setUp() {
 		
 		// Prevent daemon from starting
 		this.dailyEmailDaemon.setStopped(true);
+		
+		// Set the user to use
+		this.user = repository.loadUser(UserIdConstants.MADS_KEY);
 	}
 
 	@Test
@@ -44,18 +54,31 @@ public class BasicZohoApiCallTest {
 
 		logger.info("Starting..");
 		List<JSONObject> list = this.zohoCrmApiService
-		        .listContactsWithNextCallDateDue();
+		        .listContactsWithNextCallDateDue(this.user.getZohoAuthToken());
 		logger.info("Received " + list.size() + " rows");
 		Assert.assertTrue("size: " + list.size(), list.size() > 0);
 
 	}
 	
 	@Test
+	public void testLoadNotes() {
+
+		logger.info("Starting..");
+		List<Row> list = this.zohoCrmApiService
+		        .loadNotes(this.user.getZohoAuthToken(), "755485000000058579", RecordType.Contacts);
+		// this has no notes -- List<Row> list = this.zohoCrmApiService.loadNotes("755485000000065011", RecordType.Contacts);
+		
+		logger.info("Received " + list.size() + " rows");
+		Assert.assertTrue("size: " + list.size(), list.size() > 0);
+
+	}	
+	
+	@Test
 	public void testLoadContact() {
 
 		logger.info("Starting..");
 		
-		Row row = this.zohoCrmApiService.loadContactFields("755485000000058579");
+		Row row = this.zohoCrmApiService.loadContactFields(this.user.getZohoAuthToken(), "755485000000058579");
 		logger.info("Received " + row.getFieldMap().size() + " fields");
 		for (String fieldName : row.getFieldMap().keySet()) {
 			logger.info(fieldName + "=" + row.getFieldMap().get(fieldName));
@@ -68,7 +91,7 @@ public class BasicZohoApiCallTest {
 
 		logger.info("Starting..");
 		
-		this.zohoCrmApiService.postponeContactNextCallDate("755485000000058579");
+		this.zohoCrmApiService.postponeContactNextCallDate(this.user.getZohoAuthToken(), "755485000000058579");
 	}
 
 }

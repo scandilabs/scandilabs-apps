@@ -46,5 +46,14 @@
         <property name="defaultTo" value="mkvalsvik@scandilabs.com"/>
         <property name="testMode" value="false"/>
       </bean>      
+      
+      <bean id="repository" class="com.scandilabs.apps.zohocrm.entity.support.Repository">
+      </bean>    
+      
+      <bean id="emailComposer" class="com.scandilabs.apps.zohocrm.service.EmailComposer">
+        <property name="zohoCrmApiService" ref="zohoCrmApiService" />
+        <property name="mailSender" ref="htmlMailSender" />
+        <property name="emailUrlPrefix" value="http://localhost:8081" />
+      </bean>         
   
 </beans>               

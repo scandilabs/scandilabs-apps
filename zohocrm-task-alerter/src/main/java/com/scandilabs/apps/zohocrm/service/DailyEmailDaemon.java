@@ -1,33 +1,33 @@
 package com.scandilabs.apps.zohocrm.service;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
+import java.util.GregorianCalendar;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 
-import com.scandilabs.apps.zohocrm.util.ApplicationUtils;
-import com.scandilabs.apps.zohocrm.web.UserController;
+import com.scandilabs.apps.zohocrm.entity.support.Repository;
+import com.scandilabs.apps.zohocrm.entity.support.UserIdConstants;
 import com.scandilabs.catamaran.mail.send.SimpleHtmlMailSender;
 
 public class DailyEmailDaemon extends TimerTask {
 
-    private Logger logger = LoggerFactory.getLogger(UserController.class);
+    private Logger logger = LoggerFactory.getLogger(DailyEmailDaemon.class);
 
     @Autowired
     private ZohoCrmApiService zohoCrmApiService;
     
     @Autowired
     private SimpleHtmlMailSender mailSender;
+    
+    @Autowired
+    private EmailComposer emailComposer;
+    
+    Repository repository = new Repository();
     
     private boolean stopped;
     
@@ -43,7 +43,18 @@ public class DailyEmailDaemon extends TimerTask {
     		return;
     	}
         logger.info("Starting daily email daemon..");
-        timer.schedule(this, 4000, 60000);
+        
+        // Figure out noon today
+        Calendar cal = new GregorianCalendar();
+        cal.set(Calendar.HOUR_OF_DAY, 22);
+        cal.set(Calendar.MINUTE, 0);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        
+        // Run at 7am every day.
+        timer.scheduleAtFixedRate(this, cal.getTime(), 86400000);
+        
+        //timer.schedule(this,  4000,  600000);
         logger.info(String.format(
                 "Scheduled for run in %dms, and then every %dms", 4000,
                 60000));
@@ -55,93 +66,23 @@ public class DailyEmailDaemon extends TimerTask {
 
     public void run() {
     	
+    	// Slight delay
+    	try {
+	        Thread.sleep(1000);
+        } catch (InterruptedException e) {
+	        logger.error("Timer error", e);
+        }
+    	
     	if (stopped) {
     		logger.info("Daemon service is stopped, run() cancelled.");
     		return;
     	}
 
-		SimpleDateFormat subjectDateFormat = new SimpleDateFormat("MMMM d hh:mm:ss");
-		SimpleDateFormat tableDateFormat = new SimpleDateFormat("d/M/yy");
-
-    	try {
-    		List<JSONObject> contacts = this.zohoCrmApiService.listContactsWithNextCallDateDue();
-    		    		
-    		SimpleMailMessage message = new SimpleMailMessage();
-    		message.setTo("mkvalsvik@scandilabs.com");
-    		message.setSubject(String.format("%s - %d contacts to call", subjectDateFormat.format(new Date()), contacts.size()));
-    		StringBuilder body = new StringBuilder();
-    		body.append("<table>");
-    		
-    		for (JSONObject contact : contacts) {
-    			
-    			// Extract field data
-    			JSONArray fields = contact.getJSONArray("FL");
-            	String firstName = ApplicationUtils.getField(fields, "First Name");
-            	String lastName = ApplicationUtils.getField(fields, "Last Name");
-            	String owner = ApplicationUtils.getField(fields, "Contact Owner");
-            	String account = ApplicationUtils.getField(fields, "Account Name");
-            	String email = ApplicationUtils.getField(fields, "Email");
-            	String lastActivityStr = ApplicationUtils.getField(fields, "Last Activity Time");
-            	String nextCallDateStr = ApplicationUtils.getField(fields, "Next Call Date");
-            	String contactId = ApplicationUtils.getField(fields, "CONTACTID");
-            	Date nextCallDate;
-                try {
-    	            nextCallDate = ApplicationUtils.DATE_FORMAT.parse(nextCallDateStr);
-                } catch (ParseException e) {
-    	            throw new RuntimeException("Error parsing date: " + nextCallDateStr, e);
-                }            	
-            	Date lastActivity;
-                try {
-    	            lastActivity = ApplicationUtils.DATE_FORMAT.parse(lastActivityStr);
-                } catch (ParseException e) {
-    	            throw new RuntimeException("Error parsing date: " + lastActivityStr, e);
-                }            	
-            	
-                // Populate email body from contact
-            	logger.debug(String.format("It's time to call %s %s from %s", firstName, lastName, account));
-        		body.append("<tr>");
-        		body.append("<td>");
-        		body.append(String.format("%s %s", firstName, lastName));
-        		body.append("</td>");
-        		body.append("<td>&nbsp;</td>");
-        		
-        		body.append("<td>");
-        		body.append(account);
-        		body.append("</td>");
-        		body.append("<td>&nbsp;</td>");
-        		
-        		body.append("<td style='text-align:right'>");
-        		body.append(tableDateFormat.format(lastActivity));
-        		body.append("</td>");
-        		
-        		body.append("</tr>");
-        		body.append("<tr>");
-        		
-        		body.append("<td>");
-        		body.append("<a href='http://localhost:8081/contacts/view/" + contactId + "'>view</a>");
-        		body.append("</td>");
-        		body.append("<td>&nbsp;</td>");
-        		body.append("<td>");
-        		body.append("<a href='http://localhost:8081/contacts/postpone/" + contactId + "'>postpone</a>");        		
-        		body.append("</td>");
-        		
-        		body.append("</tr>");
-        		body.append("<tr>");
-        		body.append("<td colspan='5'>");
-        		body.append("<hr/>");
-        		body.append("</td>");
-        		body.append("</tr>");
-    		}
-    		
-    		// Send
-    		body.append("</table>");
-    		message.setText(body.toString());            
-    		mailSender.send(message);        
-
-    		
-    	} catch (Exception e) {
-    		logger.error("Daily Email Daemon run error", e);
-    	}
+		// Scandilabs
+    	emailComposer.sendContactNextCallEmail(repository.loadUser(UserIdConstants.MADS_KEY));
+    	
+    	// Madaket
+    	emailComposer.sendContactNextCallEmail(repository.loadUser(UserIdConstants.TED_KEY));    	
     }
 
 	public void setZohoCrmApiService(ZohoCrmApiService zohoCrmApiService) {
