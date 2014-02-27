@@ -33,7 +33,7 @@ public class ZohoHttpCaller {
 	private static final String SAMPLE_ERROR_JSON = "{\"response\":{\"nodata\":{\"message\":\"There is no data to show\",\"code\":\"4422\"},\"uri\":\"/crm/private/json/Contacts/getRecordById\"}}";
 	private static final String SAMPLE_NOTES_JSON = "{\"response\":{\"result\":{\"Notes\":{\"row\":[{\"no\":\"1\",\"FL\":[{\"content\":\"755485000000141006\",\"val\":\"id\"},{\"val\":\"Title\"},{\"content\":\"Zoho CRM is an On-demand Customer Relationship Management (CRM) software for managing your customer relations in a better way. Zoho CRM software helps streamline your organization-wide sales, marketing, customer support, and inventory management functions in a single system.\n\nUnderstanding Zoho CRM\nGet an insight into the basics and know your Zoho CRM better.\n\nGetting Started\nGet started the easy way with some initial setup and customizations.\",\"val\":\"Note Content\"},{\"content\":\"755485000000057001\",\"val\":\"SMOWNERID\"},{\"content\":\" Mads\",\"val\":\"Owner Name\"},{\"content\":\"755485000000057001\",\"val\":\"SMCREATORID\"},{\"content\":\" Mads\",\"val\":\"Created By\"},{\"content\":\"2014-02-20 16:19:56\",\"val\":\"Created Time\"},{\"content\":\"755485000000057001\",\"val\":\"MODIFIEDBY\"},{\"content\":\" Mads\",\"val\":\"Modified By\"},{\"content\":\"2014-02-20 16:19:56\",\"val\":\"Modified Time\"},{\"content\":\"false\",\"val\":\"ISVOICENOTES\"}]},{\"no\":\"2\",\"FL\":[{\"content\":\"755485000000141004\",\"val\":\"id\"},{\"val\":\"Title\"},{\"content\":\"Test note #2\",\"val\":\"Note Content\"},{\"content\":\"755485000000057001\",\"val\":\"SMOWNERID\"},{\"content\":\" Mads\",\"val\":\"Owner Name\"},{\"content\":\"755485000000057001\",\"val\":\"SMCREATORID\"},{\"content\":\" Mads\",\"val\":\"Created By\"},{\"content\":\"2014-02-20 16:19:15\",\"val\":\"Created Time\"},{\"content\":\"755485000000057001\",\"val\":\"MODIFIEDBY\"},{\"content\":\" Mads\",\"val\":\"Modified By\"},{\"content\":\"2014-02-20 16:19:15\",\"val\":\"Modified Time\"},{\"content\":\"false\",\"val\":\"ISVOICENOTES\"}]},{\"no\":\"3\",\"FL\":[{\"content\":\"755485000000141002\",\"val\":\"id\"},{\"val\":\"Title\"},{\"content\":\"Test note #1\",\"val\":\"Note Content\"},{\"content\":\"755485000000057001\",\"val\":\"SMOWNERID\"},{\"content\":\" Mads\",\"val\":\"Owner Name\"},{\"content\":\"755485000000057001\",\"val\":\"SMCREATORID\"},{\"content\":\" Mads\",\"val\":\"Created By\"},{\"content\":\"2014-02-20 16:19:01\",\"val\":\"Created Time\"},{\"content\":\"755485000000057001\",\"val\":\"MODIFIEDBY\"},{\"content\":\" Mads\",\"val\":\"Modified By\"},{\"content\":\"2014-02-20 16:19:01\",\"val\":\"Modified Time\"},{\"content\":\"false\",\"val\":\"ISVOICENOTES\"}]}]}},\"uri\":\"/crm/private/json/Notes/getRelatedRecords\"}}";
 
-	private static String toCacheKey(String url, Map<String, String> params) {
+	private static String toCacheKey(String authtoken, String url, Map<String, String> params) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(url);
 		sb.append("?");
@@ -43,11 +43,13 @@ public class ZohoHttpCaller {
 			sb.append(params.get(key));
 			sb.append("&");
 		}
+		sb.append("authtoken=");
+		sb.append(authtoken);
 		return sb.toString();
 	}
 	
-	public static void removeFromCache(String url, Map<String, String> params) {
-		String cacheKey = toCacheKey(url, params);
+	public static void removeFromCache(String authtoken, String url, Map<String, String> params) {
+		String cacheKey = toCacheKey(authtoken, url, params);
 		cache.remove(cacheKey);
 		logger.debug("Cleared from cache: " + cacheKey);
 	}
@@ -96,7 +98,7 @@ public class ZohoHttpCaller {
 		// First lookup in cache
 		String cacheKey = null;
 		if (!isUpdate) {
-			cacheKey = toCacheKey(url, params);
+			cacheKey = toCacheKey(authtoken, url, params);
 			if (cacheEnabled) {						
 				String cachedJson = cache.get(cacheKey);
 				if (cachedJson != null) {

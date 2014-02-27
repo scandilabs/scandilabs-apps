@@ -3,10 +3,16 @@ package com.scandilabs.apps.zohocrm.entity.support;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.scandilabs.apps.zohocrm.entity.User;
+import com.scandilabs.apps.zohocrm.service.UserContext;
 import com.scandilabs.catamaran.type.Name;
 
 public class Repository {
+	
+	private Logger logger = LoggerFactory.getLogger(Repository.class);	
 	
 	private static final List<User> users = new ArrayList<User>();
 	
@@ -14,7 +20,7 @@ public class Repository {
 		User ted = new User();
 		ted.setZohoAuthToken("a021c528e429d198cfe9269032491435");
 		ted.setName(Name.createFromFullNameString("Ted Achtem"));
-		ted.setEmail("ted@scandilabs.com");
+		ted.setEmail("ted@madakethealth.com");
 		ted.setKey(UserIdConstants.TED_KEY);
 		ted.setApiAuthToken(UserIdConstants.TED_API_TOKEN);
 		users.add(ted);
@@ -41,6 +47,7 @@ public class Repository {
 	public User loadUserByEmail(String email) {		
 		for (User user : users) {
 			if (user.getEmail().equalsIgnoreCase(email)) {
+				logger.debug("Found user " + user.getName() + " with key " + user.getKey() + " by email " + email);
 				return user;
 			}
 		}

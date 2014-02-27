@@ -84,12 +84,12 @@ public class ZohoCrmApiService {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 
-		this.clearContactViewCache(recordId);
+		this.clearContactViewCache(authtoken, recordId);
 		Row row = this.loadContactFields(authtoken, recordId);
 		row.addField("Next Call Date", apiDateFormat.format(cal.getTime()));
 
 		this.postUpdate(authtoken, recordId, RecordType.Contacts, row);
-		this.clearContactViewCache(recordId);
+		this.clearContactViewCache(authtoken, recordId);
 	}
 
 	public void addContactNote(String authtoken, String recordId, String note) {
@@ -108,7 +108,7 @@ public class ZohoCrmApiService {
 		params.put("id", recordId);
 		params.put("parentModule", RecordType.Contacts.name());
 		String url = "https://crm.zoho.com/crm/private/json/Notes/getRelatedRecords";
-		ZohoHttpCaller.removeFromCache(url, params);
+		ZohoHttpCaller.removeFromCache(authtoken, url, params);
 	}
 
 	public void cancelContactNextCallDate(String authtoken, String recordId) {
@@ -123,12 +123,12 @@ public class ZohoCrmApiService {
 		cal.set(Calendar.SECOND, 0);
 		cal.set(Calendar.MILLISECOND, 0);
 
-		this.clearContactViewCache(recordId);
+		this.clearContactViewCache(authtoken, recordId);
 		Row row = this.loadContactFields(authtoken, recordId);
 		row.addField("Next Call Date", apiDateFormat.format(cal.getTime()));
 
 		this.postUpdate(authtoken, recordId, RecordType.Contacts, row);
-		this.clearContactViewCache(recordId);
+		this.clearContactViewCache(authtoken, recordId);
 	}
 
 	public Row loadContactFields(String authtoken, String recordId) {
@@ -232,14 +232,14 @@ public class ZohoCrmApiService {
 		logger.trace("json>" + htmlContent);
 	}
 	
-	private void clearContactViewCache(String recordId) {
+	private void clearContactViewCache(String authtoken, String recordId) {
 		
 		// Individual record
 		Map<String, String> cacheClearParams = new HashMap<String, String>();
 		cacheClearParams.put("id", recordId);
 		String cacheClearUrl = "https://crm.zoho.com/crm/private/json/" + RecordType.Contacts.name()
 		                + "/getRecordById";	
-		ZohoHttpCaller.removeFromCache(cacheClearUrl, cacheClearParams);
+		ZohoHttpCaller.removeFromCache(authtoken, cacheClearUrl, cacheClearParams);
 		
 		// All contact listings
 		ZohoHttpCaller.removeStartingUrlsFromCache("https://crm.zoho.com/crm/private/json/Contacts/getRecords");

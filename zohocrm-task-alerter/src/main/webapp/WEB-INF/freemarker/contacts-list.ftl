@@ -3,6 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
+    <#include "includes/head.ftl" />
 	<title>ScandiLabs : CRM : Contact List</title>
 </head>
 <body>

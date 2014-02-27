@@ -53,7 +53,7 @@
       <bean id="emailComposer" class="com.scandilabs.apps.zohocrm.service.EmailComposer">
         <property name="zohoCrmApiService" ref="zohoCrmApiService" />
         <property name="mailSender" ref="htmlMailSender" />
-        <property name="emailUrlPrefix" value="http://localhost:8081" />
+        <property name="emailUrlPrefix" value="http://crm.scandilabs.com" />
       </bean>         
   
 </beans>               

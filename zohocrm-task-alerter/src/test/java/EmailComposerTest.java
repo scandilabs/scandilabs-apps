@@ -51,7 +51,7 @@ public class EmailComposerTest {
 		logger.info("Starting..");
 		User user = repository.loadUser(UserIdConstants.TED_KEY);
 		List<JSONObject> contacts = this.zohoCrmApiService.listContactsWithNextCallDateDue(user.getZohoAuthToken());
-		String html = emailComposer.composeContactsHistoryBodyHtml(user, contacts);
+		String html = emailComposer.composeContactsHistoryBodyHtml(user, contacts, true);
 		logger.info("Got html: " + html);
 		logger.info("Done.");
 

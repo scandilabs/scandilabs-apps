@@ -4,6 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <#assign page = "notFound">
 <head>
+    <#include "includes/head.ftl" />
 	<title>ScandiLabs : Java : Error</title>
 </head>
 <#flush>

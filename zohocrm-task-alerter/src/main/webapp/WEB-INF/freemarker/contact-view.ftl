@@ -3,17 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
-	<#-- include "includes/head.ftl" / -->
+	<#include "includes/head.ftl" />
 	<title>Contact</title>
-    <!-- script type="text/javascript" src="static/js/blog.js"></script>
-	<link type="text/css" rel="stylesheet" href="static/css/blog.css" media="screen, projection" -->
-	
-	<style>
-	  label {
-	    display: inline-block; 
-	    width: 8em;
-	  }
-	</style>
 </head>
 <body>
 	
@@ -50,7 +41,7 @@
 	    <div>
           <form action="/contacts/note-add" method="POST">
             <input type="hidden" name="recordId" value="${CONTACTID}" />
-            <textarea rows="4" cols="72" name="note">Enter a new note</textarea>
+            <textarea rows="4" cols="42" name="note">Enter a new note</textarea>
             <br/>
             <input type="submit" value="Save" />
 	        </form>            

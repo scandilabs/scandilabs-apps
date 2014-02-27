@@ -1,6 +1,5 @@
 package com.scandilabs.apps.zohocrm.web;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,11 +21,9 @@ import com.scandilabs.apps.zohocrm.entity.User;
 import com.scandilabs.apps.zohocrm.entity.support.Repository;
 import com.scandilabs.apps.zohocrm.service.EmailComposer;
 import com.scandilabs.apps.zohocrm.service.PageMessageContext;
-import com.scandilabs.apps.zohocrm.service.RecordType;
 import com.scandilabs.apps.zohocrm.service.Row;
 import com.scandilabs.apps.zohocrm.service.UserContext;
 import com.scandilabs.apps.zohocrm.service.ZohoCrmApiService;
-import com.scandilabs.apps.zohocrm.service.ZohoHttpCaller;
 import com.scandilabs.apps.zohocrm.util.ApplicationUtils;
 
 
@@ -58,21 +55,26 @@ public class UserController {
     		return "redirect:/signin";
     	}
 
-		Row row = this.zohoCrmApiService.loadContactFields(userContext.getUser(repository).getZohoAuthToken(), contactKey);
+		Row row = this.zohoCrmApiService.loadContactFields(userContext.getUser(repository, userApiToken).getZohoAuthToken(), contactKey);
 		for (String fieldName : row.getNoSpaceFieldMap().keySet()) {
 			model.put(fieldName, row.getNoSpaceFieldMap().get(fieldName));
 		}
 		
 		pageMessageContext.addPendingToModel(model);
-		userContext.prepareModel(repository, model);		
+		userContext.prepareModel(repository, userApiToken, model);		
         return "contact-view";		
 	}
 	
 	@RequestMapping(value = "/signin", method = RequestMethod.GET)	
 	public String signinGet(Map<String,Object> model) {
 		pageMessageContext.addPendingToModel(model);
-		userContext.prepareModel(repository, model);		
+		userContext.prepareModel(repository, null, model);		
         return "signin";
+	}	
+	
+	@RequestMapping(value = "/", method = RequestMethod.GET)	
+	public String home(Map<String,Object> model) {
+		return this.signinGet(model);
 	}	
 	
 	@RequestMapping(value = "/signin", method = RequestMethod.POST)	
@@ -97,7 +99,7 @@ public class UserController {
     		return "redirect:/signin";
     	}
 
-		this.zohoCrmApiService.postponeContactNextCallDate(userContext.getUser(repository).getZohoAuthToken(), contactKey);
+		this.zohoCrmApiService.postponeContactNextCallDate(userContext.getUser(repository, userApiToken).getZohoAuthToken(), contactKey);
         return "redirect:/contacts/view/" + contactKey;		
 	}		
 	
@@ -114,7 +116,7 @@ public class UserController {
 			logger.debug("Skipping note add, nothing was entered.");
 		} else {
 			logger.debug("Adding note to contact " + recordId + ": " + note);
-			this.zohoCrmApiService.addContactNote(userContext.getUser(repository).getZohoAuthToken(), recordId, note);
+			this.zohoCrmApiService.addContactNote(userContext.getUser(repository, userApiToken).getZohoAuthToken(), recordId, note);
 			pageMessageContext.setMessage("Note was saved.", true);
 		}		
         return "redirect:/contacts/view/" + recordId;		
@@ -127,7 +129,7 @@ public class UserController {
     		return "redirect:/signin";
     	}
 
-		this.zohoCrmApiService.cancelContactNextCallDate(userContext.getUser(repository).getZohoAuthToken(), contactKey);
+		this.zohoCrmApiService.cancelContactNextCallDate(userContext.getUser(repository, userApiToken).getZohoAuthToken(), contactKey);
 		
         return "redirect:/contacts/view/" + contactKey;		
 	}	
@@ -138,9 +140,11 @@ public class UserController {
 		if (!userContext.isLoggedIn(repository, userApiToken)) {
     		return "redirect:/signin";
     	}
-		userContext.prepareModel(repository, model);
+		userContext.prepareModel(repository, userApiToken, model);
 		
-		List<JSONObject> list = this.zohoCrmApiService.listContactsWithNextCallDate(userContext.getUser(repository).getZohoAuthToken());
+		User user = userContext.getUser(repository, userApiToken);
+		logger.debug("Getting list as user " + user.getName() + " with zoho token " + user.getZohoAuthToken());
+		List<JSONObject> list = this.zohoCrmApiService.listContactsWithNextCallDate(user.getZohoAuthToken());
 		List<Row> rows = ApplicationUtils.toRowList(list);
 		List<Map<String, Object>> rowMap = ApplicationUtils.toRowFieldMap(rows);
 		model.put("contacts", rowMap);		
@@ -153,11 +157,11 @@ public class UserController {
 		if (!userContext.isLoggedIn(repository, userApiToken)) {
     		return "redirect:/signin";
     	}
-		userContext.prepareModel(repository, model);
+		userContext.prepareModel(repository, userApiToken, model);
 		
-		User user = userContext.getUser(repository);
+		User user = userContext.getUser(repository, userApiToken);
 		List<JSONObject> contacts = zohoCrmApiService.listContactsWithNextCallDate(user.getZohoAuthToken());
-		String historyBodyHtml = emailComposer.composeContactsHistoryBodyHtml(user, contacts);
+		String historyBodyHtml = emailComposer.composeContactsHistoryBodyHtml(user, contacts, false);
 		model.put("historyBodyHtml", historyBodyHtml);		
         return "contacts-history";		
 	}	

@@ -30,7 +30,7 @@ public class EmailComposer {
 	
 	private Logger logger = LoggerFactory.getLogger(EmailComposer.class);
 	
-	public String composeContactsHistoryBodyHtml(User user, List<JSONObject> contacts) {
+	public String composeContactsHistoryBodyHtml(User user, List<JSONObject> contacts, boolean emailMode) {
 		StringBuilder body = new StringBuilder();
 		body.append("<table>");
 		
@@ -113,18 +113,23 @@ public class EmailComposer {
 			}
     		
 			// Action menu line
+			String userTokenUrlSuffix = "";
+			if (emailMode) {
+				userTokenUrlSuffix = "?user=" + user.getApiAuthToken();
+			}
+			
     		body.append("<tr>");
     		
     		body.append("<td>");
-    		body.append("<a href='" + this.emailUrlPrefix + "/contacts/view/" + contactId + "'>VIEW</a>");
+    		body.append("<a href='" + this.emailUrlPrefix + "/contacts/view/" + contactId + userTokenUrlSuffix + "'>VIEW</a>");
     		body.append("</td>");
     		body.append("<td>&nbsp;</td>");
     		body.append("<td>");
-    		body.append("<a href='" + this.emailUrlPrefix + "/contacts/postpone/" + contactId + "'>POSTPONE</a>");        		
+    		body.append("<a href='" + this.emailUrlPrefix + "/contacts/postpone/" + contactId + userTokenUrlSuffix + "'>POSTPONE</a>");        		
     		body.append("</td>");
     		body.append("<td>&nbsp;</td>");
     		body.append("<td>");
-    		body.append("<a href='" + this.emailUrlPrefix + "/contacts/cancel/" + contactId + "'>CANCEL</a>");        		
+    		body.append("<a href='" + this.emailUrlPrefix + "/contacts/cancel/" + contactId + userTokenUrlSuffix + "'>CANCEL</a>");        		
     		body.append("</td>");
     		body.append("</tr>");
     		
@@ -154,7 +159,7 @@ public class EmailComposer {
     		SimpleMailMessage message = new SimpleMailMessage();
     		message.setTo(user.getEmail());
     		message.setSubject(String.format("%s - %d contacts to call", subjectDateFormat.format(new Date()), contacts.size()));
-			String bodyStr = this.composeContactsHistoryBodyHtml(user, contacts);
+			String bodyStr = this.composeContactsHistoryBodyHtml(user, contacts, true);
     		message.setText(bodyStr);            
     		mailSender.send(message);        
 			logger.debug("Finished sending email");
