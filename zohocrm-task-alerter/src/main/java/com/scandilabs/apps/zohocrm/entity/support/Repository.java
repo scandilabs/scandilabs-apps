@@ -15,7 +15,6 @@ import com.scandilabs.catamaran.type.Name;
 
 public class Repository {
 	
-<<<<<<< HEAD
 	@Autowired()
 	@Qualifier("applicationProperties")
 	private Properties applicationProperties;
@@ -26,14 +25,8 @@ public class Repository {
 	
 	public Repository(Properties applicationProperties) {
 		this.applicationProperties = applicationProperties;
-=======
-	private static Logger logger = LoggerFactory.getLogger(Repository.class);	
 	
-	private static final List<User> users = new ArrayList<User>();
-	
-	static {
 		logger.debug("Initializing Zoho CRM users in Repository..");
->>>>>>> origin/master
 //		User ted = new User();
 //		ted.setZohoAuthToken("a021c528e429d198cfe9269032491435");
 //		ted.setName(Name.createFromFullNameString("Ted Achtem"));
@@ -49,7 +42,6 @@ public class Repository {
 		mads.setName(Name.createFromFullNameString("Mads Kvalsvik"));
 		mads.setKey(UserIdConstants.MADS_KEY);
 		mads.setApiAuthToken(UserIdConstants.MADS_API_TOKEN);
-<<<<<<< HEAD
 		
 		GmailAccount scandilabsAccount = new GmailAccount();
 		scandilabsAccount.setEmail(applicationProperties.getProperty("email.mads.scandilabs.user"));		
@@ -62,14 +54,11 @@ public class Repository {
 		mads.getGmailAccounts().add(personalAccount);
 		
 		users.add(mads);		
+		logger.debug("DONE Initializing Zoho CRM users in Repository.");
 	}
 	
 	public void setApplicationProperties(Properties applicationProperties) {
 	    this.applicationProperties = applicationProperties;
-=======
-		users.add(mads);
-		logger.debug("DONE Initializing Zoho CRM users in Repository.");
->>>>>>> origin/master
 	}
 	
 	public User loadUser(String userKey) {
