@@ -12,18 +12,19 @@ import com.scandilabs.catamaran.type.Name;
 
 public class Repository {
 	
-	private Logger logger = LoggerFactory.getLogger(Repository.class);	
+	private static Logger logger = LoggerFactory.getLogger(Repository.class);	
 	
 	private static final List<User> users = new ArrayList<User>();
 	
 	static {
-		User ted = new User();
-		ted.setZohoAuthToken("a021c528e429d198cfe9269032491435");
-		ted.setName(Name.createFromFullNameString("Ted Achtem"));
-		ted.setEmail("ted@madakethealth.com");
-		ted.setKey(UserIdConstants.TED_KEY);
-		ted.setApiAuthToken(UserIdConstants.TED_API_TOKEN);
-		users.add(ted);
+		logger.debug("Initializing Zoho CRM users in Repository..");
+//		User ted = new User();
+//		ted.setZohoAuthToken("a021c528e429d198cfe9269032491435");
+//		ted.setName(Name.createFromFullNameString("Ted Achtem"));
+//		ted.setEmail("ted@madakethealth.com");
+//		ted.setKey(UserIdConstants.TED_KEY);
+//		ted.setApiAuthToken(UserIdConstants.TED_API_TOKEN);
+//		users.add(ted);
 		
 		User mads = new User();
 		mads.setZohoAuthToken("8cdb044dcad100b204412ce56de4d7b0");
@@ -33,6 +34,7 @@ public class Repository {
 		mads.setKey(UserIdConstants.MADS_KEY);
 		mads.setApiAuthToken(UserIdConstants.MADS_API_TOKEN);
 		users.add(mads);
+		logger.debug("DONE Initializing Zoho CRM users in Repository.");
 	}
 	
 	public User loadUser(String userKey) {
