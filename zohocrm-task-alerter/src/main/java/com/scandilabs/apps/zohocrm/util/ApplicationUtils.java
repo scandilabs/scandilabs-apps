@@ -9,8 +9,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.scandilabs.apps.zohocrm.service.Row;
-import com.scandilabs.apps.zohocrm.service.ZohoCrmApiService;
+import com.scandilabs.apps.zohocrm.service.zoho.Row;
+import com.scandilabs.apps.zohocrm.service.zoho.ZohoCrmApiService;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -21,7 +21,7 @@ public class ApplicationUtils {
 	private static Logger logger = LoggerFactory.getLogger(ApplicationUtils.class);
 
 	public static SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
-	public static SimpleDateFormat TABLE_DISPLAY_DATE_FORMAT = new SimpleDateFormat("d/M/yy");
+	public static SimpleDateFormat TABLE_DISPLAY_DATE_FORMAT = new SimpleDateFormat("M/d/yyyy");
 	
 	public static String getField(JSONArray fields, String fieldName) {
 		for (int j = 0; j < fields.size(); j++) {

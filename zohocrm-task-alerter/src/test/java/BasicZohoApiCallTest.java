@@ -16,10 +16,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.scandilabs.apps.zohocrm.entity.User;
 import com.scandilabs.apps.zohocrm.entity.support.Repository;
 import com.scandilabs.apps.zohocrm.entity.support.UserIdConstants;
-import com.scandilabs.apps.zohocrm.service.DailyEmailDaemon;
-import com.scandilabs.apps.zohocrm.service.RecordType;
-import com.scandilabs.apps.zohocrm.service.Row;
-import com.scandilabs.apps.zohocrm.service.ZohoCrmApiService;
+import com.scandilabs.apps.zohocrm.service.cron.DailyEmailDaemon;
+import com.scandilabs.apps.zohocrm.service.zoho.RecordType;
+import com.scandilabs.apps.zohocrm.service.zoho.Row;
+import com.scandilabs.apps.zohocrm.service.zoho.ZohoCrmApiService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:zoho-api-spring.xml")

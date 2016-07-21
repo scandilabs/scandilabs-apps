@@ -1,4 +1,4 @@
-package com.scandilabs.apps.zohocrm.service;
+package com.scandilabs.apps.zohocrm.service.zoho;
 
 
 public enum RecordType {

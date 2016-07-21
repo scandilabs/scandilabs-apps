@@ -1,4 +1,4 @@
-package com.scandilabs.apps.zohocrm.service;
+package com.scandilabs.apps.zohocrm.service.cron;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.scandilabs.apps.zohocrm.entity.support.Repository;
 import com.scandilabs.apps.zohocrm.entity.support.UserIdConstants;
+import com.scandilabs.apps.zohocrm.service.EmailComposer;
+import com.scandilabs.apps.zohocrm.service.zoho.ZohoCrmApiService;
 import com.scandilabs.catamaran.mail.send.SimpleHtmlMailSender;
 
 public class DailyEmailDaemon extends TimerTask {
@@ -27,7 +29,8 @@ public class DailyEmailDaemon extends TimerTask {
     @Autowired
     private EmailComposer emailComposer;
     
-    Repository repository = new Repository();
+    @Autowired
+    Repository repository;
     
     private boolean stopped;
     

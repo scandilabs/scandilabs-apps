@@ -1,4 +1,4 @@
-package com.scandilabs.apps.zohocrm.service;
+package com.scandilabs.apps.zohocrm.web.support;
 
 import java.io.Serializable;
 import java.util.Map;

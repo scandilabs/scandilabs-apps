@@ -6,11 +6,17 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
                http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
-  <bean id="zohoCrmApiService" class="com.scandilabs.apps.zohocrm.service.ZohoCrmApiService">
+  <!-- Expose application properties to java code 
+       See http://stackoverflow.com/questions/7123890/spring-bean-properties-file
+  -->
+  <util:properties id="applicationProperties"
+    location="file:///catamaran/apps/zohocrm-task-alerter/conf/application.properties" /> 
+
+  <bean id="zohoCrmApiService" class="com.scandilabs.apps.zohocrm.service.zoho.ZohoCrmApiService">
   </bean>
   
    <!-- Daily email daemon -->
-  <bean id="dailyEmailDaemon" class="com.scandilabs.apps.zohocrm.service.DailyEmailDaemon" init-method="init">
+  <bean id="dailyEmailDaemon" class="com.scandilabs.apps.zohocrm.service.cron.DailyEmailDaemon" init-method="init">
     <property name="zohoCrmApiService" ref="zohoCrmApiService" />
   </bean>
   
@@ -48,12 +54,17 @@
       </bean>      
       
       <bean id="repository" class="com.scandilabs.apps.zohocrm.entity.support.Repository">
+          <constructor-arg ref="applicationProperties" />
       </bean>    
       
       <bean id="emailComposer" class="com.scandilabs.apps.zohocrm.service.EmailComposer">
         <property name="zohoCrmApiService" ref="zohoCrmApiService" />
         <property name="mailSender" ref="htmlMailSender" />
+        <property name="gmailService" ref="gmailService" />
         <property name="emailUrlPrefix" value="http://crm.scandilabs.com" />
+      </bean>         
+
+      <bean id="gmailService" class="com.scandilabs.apps.zohocrm.service.gmail.GmailService">
       </bean>         
   
 </beans>               

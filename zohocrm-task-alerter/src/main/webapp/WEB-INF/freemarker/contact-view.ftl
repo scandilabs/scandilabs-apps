@@ -45,7 +45,18 @@
             <br/>
             <input type="submit" value="Save" />
 	        </form>            
-      </div>      
+      </div>     
+      
+      <table>
+      <#list notes as note>
+      <tr>
+        <td>${note.noSpaceFieldMap.Modified_Time?date?string("M/d/yyyy")}</td>
+        <td>${note.noSpaceFieldMap.Modified_By}:</td>
+        <td>${note.noSpaceFieldMap.Note_Content}</td>
+      </tr>
+      </#list>
+      </table>
+       
 
       <br/>
       <table>

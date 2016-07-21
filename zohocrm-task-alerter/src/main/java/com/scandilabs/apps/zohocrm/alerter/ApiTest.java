@@ -17,7 +17,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
-import com.scandilabs.apps.zohocrm.service.ZohoCrmApiService;
+import com.scandilabs.apps.zohocrm.service.zoho.ZohoCrmApiService;
 
 public class ApiTest {
 

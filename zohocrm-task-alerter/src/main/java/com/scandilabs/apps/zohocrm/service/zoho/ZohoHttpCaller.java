@@ -1,4 +1,4 @@
-package com.scandilabs.apps.zohocrm.service;
+package com.scandilabs.apps.zohocrm.service.zoho;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

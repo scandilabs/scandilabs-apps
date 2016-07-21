@@ -1,6 +1,8 @@
 package com.scandilabs.apps.zohocrm.entity;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
@@ -33,6 +35,8 @@ public class User implements Timestamped {
 	private boolean administrator;
 	private String contextId = "default"; // TODO: Set differently
     private String shortId; // Used for html links etc	
+    
+    private List<GmailAccount> gmailAccounts = new ArrayList<GmailAccount>();
 
 	public User() {
 		this.name = new Name();
@@ -166,5 +170,10 @@ public class User implements Timestamped {
 
 	public void setApiAuthToken(String apiAuthToken) {
 		this.apiAuthToken = apiAuthToken;
+	}
+
+
+	public List<GmailAccount> getGmailAccounts() {
+		return gmailAccounts;
 	}    
 }

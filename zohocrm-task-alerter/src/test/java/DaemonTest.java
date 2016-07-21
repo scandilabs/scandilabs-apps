@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.scandilabs.apps.zohocrm.service.ZohoCrmApiService;
+import com.scandilabs.apps.zohocrm.service.zoho.ZohoCrmApiService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:zoho-api-spring.xml")

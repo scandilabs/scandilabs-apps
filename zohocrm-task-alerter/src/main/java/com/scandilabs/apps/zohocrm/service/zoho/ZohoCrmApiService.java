@@ -1,12 +1,12 @@
-package com.scandilabs.apps.zohocrm.service;
+package com.scandilabs.apps.zohocrm.service.zoho;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
@@ -26,14 +26,45 @@ public class ZohoCrmApiService {
 
 	private static final int PAGE_SIZE = 200;
 
-	private static Logger logger = LoggerFactory.getLogger(ZohoCrmApiService.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(ZohoCrmApiService.class);
 
 	private static DateFormat apiDateFormat = new SimpleDateFormat(
-	        "yyyy-MM-dd hh:mm:ss");
+			"yyyy-MM-dd hh:mm:ss");
 
-	public List<JSONObject> listContactsWithNextCallDate(String authtoken) {
+	public List<JSONObject> listContacts(String authtoken) {
 		String targetURL = "https://crm.zoho.com/crm/private/json/Contacts/getRecords";
 		List<JSONObject> result = this.retrieveListAll(authtoken, targetURL);
+		return result;
+	}
+
+	public static void sortByLastFirstName(List<JSONObject> list) {
+		List<JSONObject> filteredResult = new ArrayList<JSONObject>();
+
+		Collections.sort(list, new Comparator<JSONObject>() {
+			public int compare(JSONObject s1, JSONObject s2) {
+
+				JSONArray fields = s1.getJSONArray("FL");
+				String firstName = ApplicationUtils.getField(fields,
+						"First Name");
+				String lastName = ApplicationUtils
+						.getField(fields, "Last Name");
+				String name = lastName + ", " + firstName;
+
+				JSONArray fields2 = s2.getJSONArray("FL");
+				String firstName2 = ApplicationUtils.getField(fields2,
+						"First Name");
+				String lastName2 = ApplicationUtils.getField(fields2,
+						"Last Name");
+				String name2 = lastName2 + ", " + firstName2;
+				return name.compareTo(name2);
+			}
+		});
+
+	}
+
+	public List<JSONObject> listContactsWithNextCallDate(String authtoken) {
+		List<JSONObject> result = this.listContacts(authtoken);
 		List<JSONObject> filteredResult = new ArrayList<JSONObject>();
 
 		// Sort by last call date
@@ -41,7 +72,7 @@ public class ZohoCrmApiService {
 			String rowNumber = (String) result.get(i).get("no");
 			JSONArray fields = result.get(i).getJSONArray("FL");
 			String nextCallDateStr = ApplicationUtils.getField(fields,
-			        "Next Call Date");
+					"Next Call Date");
 			if (nextCallDateStr != null) {
 				filteredResult.add(result.get(i));
 			}
@@ -58,14 +89,14 @@ public class ZohoCrmApiService {
 			String rowNumber = (String) result.get(i).get("no");
 			JSONArray fields = result.get(i).getJSONArray("FL");
 			String nextCallDateStr = ApplicationUtils.getField(fields,
-			        "Next Call Date");
+					"Next Call Date");
 			Date nextCallDate;
 			try {
 				nextCallDate = ApplicationUtils.DATE_FORMAT
-				        .parse(nextCallDateStr);
+						.parse(nextCallDateStr);
 			} catch (ParseException e) {
 				throw new RuntimeException("Error parsing date: "
-				        + nextCallDateStr, e);
+						+ nextCallDateStr, e);
 			}
 			if (nextCallDate.before(todaysDateAtMidnight())) {
 				filteredResult.add(result.get(i));
@@ -94,7 +125,7 @@ public class ZohoCrmApiService {
 
 	public void addContactNote(String authtoken, String recordId, String note) {
 		logger.debug(String.format("Adding note to contact with id %s",
-		        recordId));
+				recordId));
 
 		Row row = new Row();
 		row.addField("entityId", recordId);
@@ -102,7 +133,7 @@ public class ZohoCrmApiService {
 		row.addField("Note Content", note);
 
 		this.addNote(authtoken, recordId, row);
-		
+
 		// Clear list of notes for this contact from cache
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id", recordId);
@@ -113,8 +144,8 @@ public class ZohoCrmApiService {
 
 	public void cancelContactNextCallDate(String authtoken, String recordId) {
 		logger.debug(String
-		        .format("Setting next call date to a very high date for contact with id %s",
-		                recordId));
+				.format("Setting next call date to a very high date for contact with id %s",
+						recordId));
 
 		Calendar cal = new GregorianCalendar();
 		cal.set(Calendar.YEAR, 2099);
@@ -136,14 +167,14 @@ public class ZohoCrmApiService {
 	}
 
 	public Row loadRecordFields(String authtoken, String recordId,
-	        RecordType recordType) {
+			RecordType recordType) {
 		logger.debug(String.format("Retrieving record type %s with id %s",
-		        recordType, recordId));
+				recordType, recordId));
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id", recordId);
 		String htmlContent = ZohoHttpCaller.postAndReturnHtml(authtoken,
-		        "https://crm.zoho.com/crm/private/json/" + recordType
-		                + "/getRecordById", params);
+				"https://crm.zoho.com/crm/private/json/" + recordType
+						+ "/getRecordById", params);
 		logger.trace("json>" + htmlContent);
 
 		JSONObject rowJson = this.extractSingleRow(htmlContent, recordType);
@@ -157,18 +188,18 @@ public class ZohoCrmApiService {
 	}
 
 	public List<Row> loadNotes(String authtoken, String recordId,
-	        RecordType recordType) {
+			RecordType recordType) {
 		logger.debug(String.format(
-		        "Retrieving notes related to type %s with id %s", recordType,
-		        recordId));
+				"Retrieving notes related to type %s with id %s", recordType,
+				recordId));
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("id", recordId);
 		params.put("parentModule", RecordType.Contacts.name());
 		String htmlContent = ZohoHttpCaller
-		        .postAndReturnHtml(
-		                authtoken,
-		                "https://crm.zoho.com/crm/private/json/Notes/getRelatedRecords",
-		                params);
+				.postAndReturnHtml(
+						authtoken,
+						"https://crm.zoho.com/crm/private/json/Notes/getRelatedRecords",
+						params);
 		logger.trace("json>" + htmlContent);
 
 		List<Row> result = new ArrayList<Row>();
@@ -181,19 +212,19 @@ public class ZohoCrmApiService {
 
 		for (int i = 0; i < rows.size(); i++) {
 			String rowNumber = (String) rows.getJSONObject(i).get("no");
-			result.add(ApplicationUtils.toRow(rows.getJSONObject(i).getJSONArray("FL")));
+			result.add(ApplicationUtils.toRow(rows.getJSONObject(i)
+					.getJSONArray("FL")));
 		}
 		return result;
 	}
-	
-	private void addNote(String authtoken, String contactId,
-	        Row row) {
+
+	private void addNote(String authtoken, String contactId, Row row) {
 
 		String xmlData = "<Notes>" + row.toXML() + "</Notes>";
 
 		if (ZohoHttpCaller.testJsonMode) {
-			logger.warn("Test mode: Skipping this add note for contact id " + contactId
-			        + ", here's the xml: " + xmlData);
+			logger.warn("Test mode: Skipping this add note for contact id "
+					+ contactId + ", here's the xml: " + xmlData);
 			return;
 		}
 
@@ -203,56 +234,60 @@ public class ZohoCrmApiService {
 		params.put("newFormat", "" + "1");
 		params.put("xmlData", xmlData);
 		logger.debug(String.format("POSTing update request %s to %s", xmlData,
-		        url));
-		String htmlContent = ZohoHttpCaller.postAndReturnHtml(authtoken, url, params);
+				url));
+		String htmlContent = ZohoHttpCaller.postAndReturnHtml(authtoken, url,
+				params);
 		logger.trace("json>" + htmlContent);
 	}
 
 	private void postUpdate(String authtoken, String recordId,
-	        RecordType recordType, Row row) {
+			RecordType recordType, Row row) {
 
 		String xmlData = "<Contacts>" + row.toXML() + "</Contacts>";
 
 		if (ZohoHttpCaller.testJsonMode) {
 			logger.warn("Test mode: Skipping this update for id " + recordId
-			        + ", here's the xml: " + xmlData);
+					+ ", here's the xml: " + xmlData);
 			return;
 		}
 
 		String url = "https://crm.zoho.com/crm/private/xml/"
-		        + recordType.name() + "/updateRecords";
+				+ recordType.name() + "/updateRecords";
 
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("newFormat", "" + "1");
 		params.put("id", recordId);
 		params.put("xmlData", xmlData);
 		logger.debug(String.format("POSTing update request %s to %s", xmlData,
-		        url));
-		String htmlContent = ZohoHttpCaller.postAndReturnHtml(authtoken, url, params);
+				url));
+		String htmlContent = ZohoHttpCaller.postAndReturnHtml(authtoken, url,
+				params);
 		logger.trace("json>" + htmlContent);
 	}
-	
+
 	private void clearContactViewCache(String authtoken, String recordId) {
-		
+
 		// Individual record
 		Map<String, String> cacheClearParams = new HashMap<String, String>();
 		cacheClearParams.put("id", recordId);
-		String cacheClearUrl = "https://crm.zoho.com/crm/private/json/" + RecordType.Contacts.name()
-		                + "/getRecordById";	
-		ZohoHttpCaller.removeFromCache(authtoken, cacheClearUrl, cacheClearParams);
-		
+		String cacheClearUrl = "https://crm.zoho.com/crm/private/json/"
+				+ RecordType.Contacts.name() + "/getRecordById";
+		ZohoHttpCaller.removeFromCache(authtoken, cacheClearUrl,
+				cacheClearParams);
+
 		// All contact listings
-		ZohoHttpCaller.removeStartingUrlsFromCache("https://crm.zoho.com/crm/private/json/Contacts/getRecords");
+		ZohoHttpCaller
+				.removeStartingUrlsFromCache("https://crm.zoho.com/crm/private/json/Contacts/getRecords");
 	}
 
 	public List<JSONObject> retrieveList(String authtoken, String targetURL,
-	        int fromIndex, int toIndex) {
+			int fromIndex, int toIndex) {
 		logger.debug("Retrieving from " + fromIndex + " to " + toIndex);
 		Map<String, String> params = new HashMap<String, String>();
 		params.put("fromIndex", "" + fromIndex);
 		params.put("toIndex", "" + toIndex);
-		String htmlContent = ZohoHttpCaller.postAndReturnHtml(authtoken, targetURL,
-		        params);
+		String htmlContent = ZohoHttpCaller.postAndReturnHtml(authtoken,
+				targetURL, params);
 
 		List<JSONObject> result = new ArrayList<JSONObject>();
 		JSONObject json = JSONObject.fromObject(htmlContent);
@@ -299,7 +334,7 @@ public class ZohoCrmApiService {
 	}
 
 	private JSONObject extractSingleRow(String htmlContent,
-	        RecordType recordType) {
+			RecordType recordType) {
 		JSONObject json = JSONObject.fromObject(htmlContent);
 		JSONObject response = json.getJSONObject("response");
 		JSONObject result = response.optJSONObject("result");
@@ -322,7 +357,7 @@ public class ZohoCrmApiService {
 		int rows = PAGE_SIZE;
 		while (rows >= PAGE_SIZE) {
 			List<JSONObject> result = retrieveList(authtoken, targetURL,
-			        fromIndex, toIndex);
+					fromIndex, toIndex);
 			resultAll.addAll(result);
 			rows = result.size();
 			fromIndex = fromIndex + PAGE_SIZE;

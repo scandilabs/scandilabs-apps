@@ -15,9 +15,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.scandilabs.apps.zohocrm.entity.User;
 import com.scandilabs.apps.zohocrm.entity.support.Repository;
 import com.scandilabs.apps.zohocrm.entity.support.UserIdConstants;
-import com.scandilabs.apps.zohocrm.service.DailyEmailDaemon;
 import com.scandilabs.apps.zohocrm.service.EmailComposer;
-import com.scandilabs.apps.zohocrm.service.ZohoCrmApiService;
+import com.scandilabs.apps.zohocrm.service.cron.DailyEmailDaemon;
+import com.scandilabs.apps.zohocrm.service.zoho.ZohoCrmApiService;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:zoho-api-spring.xml")
@@ -49,7 +49,7 @@ public class EmailComposerTest {
 	public void testHistoryTableBodyHtml() {
 
 		logger.info("Starting..");
-		User user = repository.loadUser(UserIdConstants.TED_KEY);
+		User user = repository.loadUser(UserIdConstants.MADS_KEY);
 		List<JSONObject> contacts = this.zohoCrmApiService.listContactsWithNextCallDateDue(user.getZohoAuthToken());
 		String html = emailComposer.composeContactsHistoryBodyHtml(user, contacts, true);
 		logger.info("Got html: " + html);
@@ -61,7 +61,7 @@ public class EmailComposerTest {
 	public void testScandiLabsEmail() {
 
 		logger.info("Starting..");
-		emailComposer.sendContactNextCallEmail(repository.loadUser(UserIdConstants.TED_KEY)); 
+		emailComposer.sendContactNextCallEmail(repository.loadUser(UserIdConstants.MADS_KEY)); 
 		logger.info("Done.");
 
 	}
